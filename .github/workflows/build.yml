@@ -43,7 +43,7 @@ jobs:
         with:
           name: application-war
           path: ./deploy
-
+          
       - name: Install Tomcat
         run: |
           sudo apt-get update
@@ -51,10 +51,26 @@ jobs:
 
       - name: Deploy WAR
         run: |
+          ls -lh ./deploy/
           sudo cp ./deploy/*.war /var/lib/tomcat10/webapps/ROOT.war
-          sudo systemctl restart tomcat10
 
-      - name: Wait for application
-        run: sleep 15
+      - name: Start Tomcat
+        run: |
+          sudo systemctl start tomcat10
+          sudo systemctl status tomcat10 --no-pager || true
+
       - name: Test application
-        run: curl -f http://localhost:8080/
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/; then
+              echo "Application responded successfully"
+              exit 0
+            fi
+            echo "Waiting for Tomcat..."
+            sleep 2
+          done
+
+          echo "Tomcat or application failed to respond"
+          sudo journalctl -u tomcat10 --no-pager -n 100 || true
+          sudo tail -n 100 /var/log/tomcat10/catalina.out || true
+          exit 1
