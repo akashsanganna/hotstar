@@ -1,4 +1,3 @@
-```yaml
 name: Maven Build test
 
 on:
@@ -30,4 +29,3 @@ jobs:
           path: target/*.war
           if-no-files-found: error
           retention-days: 7
-```
