@@ -58,4 +58,3 @@ jobs:
         run: sleep 15
       - name: Test application
         run: curl -f http://localhost:8080/
-```
