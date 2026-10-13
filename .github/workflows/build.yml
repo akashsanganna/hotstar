@@ -1,4 +1,5 @@
-name: Maven Build test
+```yaml
+name: Build and Test WAR Application
 
 on:
   push:
@@ -19,13 +20,44 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build with Maven
+      - name: Build WAR file
         run: mvn clean package -Dmaven.test.skip=true
 
-      - name: Upload WAR file
+      - name: Verify WAR file
+        run: ls -lh target/*.war
+
+      - name: Upload WAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: application-war
           path: target/*.war
           if-no-files-found: error
           retention-days: 7
+
+  test-application:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download WAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: application-war
+          path: ./deploy
+
+      - name: Install Tomcat
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tomcat10
+
+      - name: Deploy WAR
+        run: |
+          sudo cp ./deploy/*.war /var/lib/tomcat10/webapps/ROOT.war
+          sudo systemctl restart tomcat10
+
+      - name: Wait for application
+        run: sleep 15
+
+      - name: Test application
+        run: curl -f http://localhost:8080/
+```
