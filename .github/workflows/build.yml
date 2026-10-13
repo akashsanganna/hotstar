@@ -1,4 +1,3 @@
-```yaml
 name: Build and Test WAR Application
 
 on:
@@ -57,7 +56,6 @@ jobs:
 
       - name: Wait for application
         run: sleep 15
-
       - name: Test application
         run: curl -f http://localhost:8080/
 ```
