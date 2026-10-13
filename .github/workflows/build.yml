@@ -43,7 +43,13 @@ jobs:
         with:
           name: application-war
           path: ./deploy
-          
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Install Tomcat
         run: |
           sudo apt-get update
@@ -51,7 +57,6 @@ jobs:
 
       - name: Deploy WAR
         run: |
-          ls -lh ./deploy/
           sudo cp ./deploy/*.war /var/lib/tomcat10/webapps/ROOT.war
 
       - name: Start Tomcat
@@ -70,7 +75,5 @@ jobs:
             sleep 2
           done
 
-          echo "Tomcat or application failed to respond"
           sudo journalctl -u tomcat10 --no-pager -n 100 || true
-          sudo tail -n 100 /var/log/tomcat10/catalina.out || true
           exit 1
