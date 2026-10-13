@@ -1,4 +1,5 @@
-name: Maven Build
+```yaml
+name: Maven Build test
 
 on:
   push:
@@ -21,3 +22,12 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean package -Dmaven.test.skip=true
+
+      - name: Upload WAR file
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-war
+          path: target/*.war
+          if-no-files-found: error
+          retention-days: 7
+```
